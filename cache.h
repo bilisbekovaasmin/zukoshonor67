@@ -3,32 +3,39 @@
 
 #include "policy_types.h"
 
-/* Stores PolicyEntry records so the cache and every replacement policy use
- * the same shared resource structure. */
+/* The cache's current contents and space usage. */
 typedef struct {
+    /* The resources currently stored in the cache. */
     PolicyEntry *entries;
+
+    /* Capacity and current usage are measured in bytes. */
     size_t capacity_bytes;
     size_t used_bytes;
+
+    /* Number of resources in the list and number of slots allocated. */
     size_t count;
     size_t allocated;
-    uint64_t clock; /* Increases once per simulated request/cache insertion. */
+
+    /* Helps policies compare when resources were last used or inserted. */
+    uint64_t clock;
 } Cache;
 
-/* A policy returns the index of the entry to evict, or SIZE_MAX on failure. */
+/* FIFO, LRU, or LFU uses this type to tell the cache which entry to remove. */
 typedef size_t (*CacheVictimSelector)(const PolicyEntry entries[], size_t count);
 
+/* Set up an empty cache, then free it when the simulation ends. */
 int cache_init(Cache *cache, size_t capacity_bytes);
 void cache_destroy(Cache *cache);
 
-/* A hit updates frequency and last-access time. A miss returns NULL. */
+/* Check requests: lookup records a hit; find only checks whether it is present. */
 PolicyEntry *cache_lookup(Cache *cache, const char *key);
 const PolicyEntry *cache_find(const Cache *cache, const char *key);
 
-/* Remove the entry at index. Indices may change after removal. */
+/* Remove a selected resource to make space. */
 int cache_remove_at(Cache *cache, size_t index);
 
-/* Insert a resource. Evicts repeatedly until there is enough room.
- * Return: 1 inserted/already present, 0 invalid or too large, -1 error. */
+/* Store a missed resource, asking the selected policy to make room if needed.
+ * `evictions` can report how many resources had to be removed. */
 int cache_insert(Cache *cache, const char *key, size_t size_bytes,
                  unsigned origin_latency_ms, CacheVictimSelector select_victim,
                  size_t *evictions);
