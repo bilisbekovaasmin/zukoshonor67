@@ -77,6 +77,81 @@ static size_t tracked_lfu_choose_victim(
     return victim;
 }
 
+/* Write one request result to the detailed CSV trace */
+static void write_trace_row(
+    FILE *file,
+    int step,
+    const ResourceInfo *resource,
+    const Request *request,
+    bool hit,
+    const Cache *cache,
+    unsigned response_ms,
+    size_t cumulative_origin_bytes,
+    size_t cumulative_hits)
+{
+    char label[32];
+
+    resource_label(resource->id, label, sizeof label);
+
+    /* Request information */
+    fprintf(file, "%d,%s,%s,%s,",
+            step,
+            label,
+            request->client_id,
+            hit ? "HIT" : "MISS");
+
+    /* Evicted resources in eviction order */
+    if (evicted_count == 0) {
+        fprintf(file, "-");
+    } else {
+        if (evicted_count > 1)
+            fprintf(file, "\"");
+
+        for (size_t i = 0; i < evicted_count; i++) {
+            resource_label(
+                evicted_ids[i], label, sizeof label
+            );
+
+            fprintf(file, "%s%s",
+                    i == 0 ? "" : ",", label);
+        }
+
+        if (evicted_count > 1)
+            fprintf(file, "\"");
+    }
+
+    fprintf(file, ",");
+
+    /* Cache contents in insertion order */
+    if (cache->count == 0) {
+        fprintf(file, "-");
+    } else {
+        if (cache->count > 1)
+            fprintf(file, "\"");
+
+        for (size_t i = 0; i < cache->count; i++) {
+            int id = resource_id_from_key(
+                cache->entries[i].key
+            );
+
+            resource_label(id, label, sizeof label);
+
+            fprintf(file, "%s%s",
+                    i == 0 ? "" : ",", label);
+        }
+
+        if (cache->count > 1)
+            fprintf(file, "\"");
+    }
+
+    /* Capacity, latency and cumulative statistics */
+    fprintf(file, ",%.10g,%u,%zu,%zu\n",
+            cache->used_bytes / 1024.0,
+            response_ms,
+            cumulative_origin_bytes,
+            cumulative_hits);
+}
+
 bool run_simulation(
     const ResourceInfo *resources,
     int resource_count,
@@ -91,9 +166,6 @@ bool run_simulation(
     Cache cache;
     SimulationMetrics metrics;
     CacheVictimSelector select_victim;
-
-    /* Detailed trace will be added next */
-    (void)trace_filename;
 
     /* Validate input */
     if (resources == NULL || requests == NULL ||
@@ -171,10 +243,34 @@ if (evicted_ids == NULL) {
 }
 
 evicted_count = 0;
+    
+/* Open detailed trace CSV */
+FILE *trace_file = NULL;
 
+if (trace_filename != NULL) {
+    trace_file = fopen(trace_filename, "w");
+
+    if (trace_file == NULL) {
+        fprintf(stderr, "Failed to open trace CSV.\n");
+        success = false;
+    }
+}
+
+if (trace_file != NULL) {
+    fprintf(trace_file,
+        "step,resource_id,client_id,result,"
+        "evicted,cache_contents_oldest_first,"
+        "cache_used_KiB,response_ms,"
+        "cumulative_origin_bytes,cumulative_hits\n"
+    );
+}
+
+/* Running totals for the detailed trace */
+size_t cumulative_origin_bytes = 0;
+size_t cumulative_hits = 0;
 
     /* Process requests in chronological input order */
-    for (int i = 0; i < request_count; i++) {
+    for (int i = 0; success && i < request_count; i++) {
 
         const Request *request = &requests[i];
 
@@ -245,6 +341,28 @@ evicted_count = 0;
             break;
         }
 
+/* Update cumulative trace statistics */
+if (hit) {
+    cumulative_hits++;
+} else {
+    cumulative_origin_bytes += resource->size_bytes;
+}
+
+/* Export the current request */
+if (trace_file != NULL) {
+    write_trace_row(
+        trace_file,
+        i + 1,
+        resource,
+        request,
+        hit,
+        &cache,
+        response_ms,
+        cumulative_origin_bytes,
+        cumulative_hits
+    );
+}
+
         /* Display individual request result */
         printf(
             "%2d | %s | ID: %d | %s | %u ms | Evictions: %zu\n",
@@ -256,6 +374,15 @@ evicted_count = 0;
             evictions
         );
     }
+
+/* Close the detailed trace file */
+if (trace_file != NULL) {
+    if (ferror(trace_file))
+        success = false;
+
+    if (fclose(trace_file) != 0)
+        success = false;
+}
 
     /* Display and export summary statistics */
     if (success) {
