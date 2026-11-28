@@ -1,0 +1,5 @@
+client_id,total_requests,hits,misses,total_bytes,hit_bytes,origin_bytes,hit_ratio_percent,byte_hit_ratio_percent,average_response_time_ms
+"OVERALL",15,5,10,512000,137216,374784,33.33,26.80,82.33
+"student-01",5,2,3,199680,65536,134144,40.00,32.82,87.00
+"student-02",5,3,2,139264,71680,67584,60.00,51.47,40.00
+"student-03",5,0,5,173056,0,173056,0.00,0.00,120.00
