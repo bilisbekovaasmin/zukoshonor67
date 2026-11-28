@@ -67,12 +67,19 @@ static void update_metrics(
     Metrics *metrics,
     bool hit,
     size_t size_bytes,
-    double response_time_ms
+    double response_time_ms,
+    size_t evictions,
+    bool oversized,
+    double utilization_percent
 )
 {
     metrics->total_requests++;
     metrics->total_bytes += size_bytes;
     metrics->total_response_time_ms += response_time_ms;
+    metrics->total_evictions += evictions;
+    if (oversized)
+        metrics->oversized_requests++;
+    metrics->utilization_percent_sum += utilization_percent;
 
     if (hit) {
         metrics->hits++;
@@ -94,6 +101,23 @@ bool metrics_record(
     double response_time_ms
 )
 {
+    return metrics_record_full(
+        metrics, client_id, hit, size_bytes, response_time_ms,
+        0, false, 0.0
+    );
+}
+
+bool metrics_record_full(
+    SimulationMetrics *metrics,
+    const char *client_id,
+    bool hit,
+    size_t size_bytes,
+    double response_time_ms,
+    size_t evictions,
+    bool oversized,
+    double utilization_percent
+)
+{
     if (metrics == NULL || client_id == NULL)
         return false;
 
@@ -112,7 +136,10 @@ bool metrics_record(
         &metrics->overall,
         hit,
         size_bytes,
-        response_time_ms
+        response_time_ms,
+        evictions,
+        oversized,
+        utilization_percent
     );
 
     /* Update individual client statistics */
@@ -120,7 +147,10 @@ bool metrics_record(
         &client->stats,
         hit,
         size_bytes,
-        response_time_ms
+        response_time_ms,
+        evictions,
+        oversized,
+        utilization_percent
     );
 
     return true;
@@ -161,6 +191,14 @@ double metrics_average_response_time(
            / metrics->total_requests;
 }
 
+double metrics_average_utilization_percent(const Metrics *metrics)
+{
+    if (metrics->total_requests == 0)
+        return 0.0;
+
+    return metrics->utilization_percent_sum / metrics->total_requests;
+}
+
 
 /* Print one set of statistics */
 static void print_stats(
@@ -190,6 +228,11 @@ static void print_stats(
 
     printf("Origin traffic: %" PRIu64 " bytes\n",
            metrics->origin_bytes);
+
+    printf("Cache evictions: %zu\n", metrics->total_evictions);
+    printf("Oversized requests: %zu\n", metrics->oversized_requests);
+    printf("Average cache utilization: %.2f%%\n",
+           metrics_average_utilization_percent(metrics));
 }
 
 
@@ -233,7 +276,7 @@ static void write_csv_row(
         "%" PRIu64 ","
         "%" PRIu64 ","
         "%" PRIu64 ","
-        "%.2f,%.2f,%.2f\n",
+        "%.2f,%.2f,%.2f,%zu,%zu,%.2f\n",
 
         metrics->total_requests,
         metrics->hits,
@@ -243,7 +286,10 @@ static void write_csv_row(
         metrics->origin_bytes,
         metrics_hit_ratio(metrics),
         metrics_byte_hit_ratio(metrics),
-        metrics_average_response_time(metrics)
+        metrics_average_response_time(metrics),
+        metrics->total_evictions,
+        metrics->oversized_requests,
+        metrics_average_utilization_percent(metrics)
     );
 }
 
@@ -264,7 +310,8 @@ bool metrics_export_csv(
         "client_id,total_requests,hits,misses,"
         "total_bytes,hit_bytes,origin_bytes,"
         "hit_ratio_percent,byte_hit_ratio_percent,"
-        "average_response_time_ms\n"
+        "average_response_time_ms,evictions,oversized_requests,"
+        "average_cache_utilization_percent\n"
     );
 
     write_csv_row(

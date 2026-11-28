@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="600" viewBox="0 0 1120 600">
+<rect width="100%" height="100%" fill="white"/>
+<text x="560.0" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="bold" fill="#1f2937">Mixed workload: per-client hit ratio at 5 MiB</text>
+<line x1="90" y1="500.0" x2="1080" y2="500.0" stroke="#d1d5db"/>
+<text x="78" y="505.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">0</text>
+<line x1="90" y1="416.0" x2="1080" y2="416.0" stroke="#d1d5db"/>
+<text x="78" y="421.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">20</text>
+<line x1="90" y1="332.0" x2="1080" y2="332.0" stroke="#d1d5db"/>
+<text x="78" y="337.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">40</text>
+<line x1="90" y1="248.0" x2="1080" y2="248.0" stroke="#d1d5db"/>
+<text x="78" y="253.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">60</text>
+<line x1="90" y1="164.0" x2="1080" y2="164.0" stroke="#d1d5db"/>
+<text x="78" y="169.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">80</text>
+<line x1="90" y1="80.0" x2="1080" y2="80.0" stroke="#d1d5db"/>
+<text x="78" y="85.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">100</text>
+<text x="172.5" y="524" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="normal" fill="#1f2937">student-01</text>
+<rect x="140.0" y="178.574" width="14" height="321.426" fill="#2563eb"/>
+<rect x="157.0" y="178.574" width="14" height="321.426" fill="#16a34a"/>
+<rect x="174.0" y="116.16199999999998" width="14" height="383.838" fill="#ea580c"/>
+<rect x="191.0" y="115.57400000000001" width="14" height="384.426" fill="#9333ea"/>
+<text x="337.5" y="524" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="normal" fill="#1f2937">student-02</text>
+<rect x="305.0" y="174.54200000000003" width="14" height="325.45799999999997" fill="#2563eb"/>
+<rect x="322.0" y="168.2" width="14" height="331.8" fill="#16a34a"/>
+<rect x="339.0" y="111.70999999999998" width="14" height="388.29" fill="#ea580c"/>
+<rect x="356.0" y="104.738" width="14" height="395.262" fill="#9333ea"/>
+<text x="502.5" y="524" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="normal" fill="#1f2937">student-03</text>
+<rect x="470.0" y="235.736" width="14" height="264.264" fill="#2563eb"/>
+<rect x="487.0" y="242.79199999999997" width="14" height="257.208" fill="#16a34a"/>
+<rect x="504.0" y="217.63400000000001" width="14" height="282.366" fill="#ea580c"/>
+<rect x="521.0" y="176.726" width="14" height="323.274" fill="#9333ea"/>
+<text x="667.5" y="524" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="normal" fill="#1f2937">student-04</text>
+<rect x="635.0" y="243.33800000000002" width="14" height="256.662" fill="#2563eb"/>
+<rect x="652.0" y="248.20999999999998" width="14" height="251.79000000000002" fill="#16a34a"/>
+<rect x="669.0" y="222.92600000000004" width="14" height="277.07399999999996" fill="#ea580c"/>
+<rect x="686.0" y="179.16199999999998" width="14" height="320.838" fill="#9333ea"/>
+<text x="832.5" y="524" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="normal" fill="#1f2937">student-05</text>
+<rect x="800.0" y="248.25200000000004" width="14" height="251.74799999999996" fill="#2563eb"/>
+<rect x="817.0" y="269.714" width="14" height="230.286" fill="#16a34a"/>
+<rect x="834.0" y="225.572" width="14" height="274.428" fill="#ea580c"/>
+<rect x="851.0" y="185.0" width="14" height="315.0" fill="#9333ea"/>
+<text x="997.5" y="524" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="normal" fill="#1f2937">student-06</text>
+<rect x="965.0" y="206.0" width="14" height="294.0" fill="#2563eb"/>
+<rect x="982.0" y="218.59999999999997" width="14" height="281.40000000000003" fill="#16a34a"/>
+<rect x="999.0" y="194.786" width="14" height="305.214" fill="#ea580c"/>
+<rect x="1016.0" y="150.014" width="14" height="349.986" fill="#9333ea"/>
+<rect x="350" y="52" width="15" height="15" fill="#2563eb"/>
+<text x="371" y="65" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">FIFO</text>
+<rect x="490" y="52" width="15" height="15" fill="#16a34a"/>
+<text x="511" y="65" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">LRU</text>
+<rect x="630" y="52" width="15" height="15" fill="#ea580c"/>
+<text x="651" y="65" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">LFU</text>
+<rect x="770" y="52" width="15" height="15" fill="#9333ea"/>
+<text x="791" y="65" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">CUSTOM</text>
+<text x="28" y="300.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#1f2937" transform="rotate(-90 28 300.0)">Hit ratio (%)</text>
+</svg>

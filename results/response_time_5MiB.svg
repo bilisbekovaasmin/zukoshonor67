@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560">
+<rect width="100%" height="100%" fill="white"/>
+<text x="480.0" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#1f2937">Average response time at 5 MiB</text>
+<line x1="100" y1="455.0" x2="930" y2="455.0" stroke="#d1d5db"/>
+<text x="88" y="460.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">0</text>
+<line x1="100" y1="390.83333333333337" x2="930" y2="390.83333333333337" stroke="#d1d5db"/>
+<text x="88" y="395.83333333333337" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">50</text>
+<line x1="100" y1="326.6666666666667" x2="930" y2="326.6666666666667" stroke="#d1d5db"/>
+<text x="88" y="331.6666666666667" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">100</text>
+<line x1="100" y1="262.5" x2="930" y2="262.5" stroke="#d1d5db"/>
+<text x="88" y="267.5" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">150</text>
+<line x1="100" y1="198.33333333333337" x2="930" y2="198.33333333333337" stroke="#d1d5db"/>
+<text x="88" y="203.33333333333337" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">200</text>
+<line x1="100" y1="134.16666666666663" x2="930" y2="134.16666666666663" stroke="#d1d5db"/>
+<text x="88" y="139.16666666666663" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">250</text>
+<line x1="100" y1="70.0" x2="930" y2="70.0" stroke="#d1d5db"/>
+<text x="88" y="75.0" text-anchor="end" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">300</text>
+<text x="238.33333333333334" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#1f2937">Sequential</text>
+<rect x="170.83333333333334" y="121.20499999999998" width="30" height="333.795" fill="#2563eb"/>
+<text x="185.83333333333334" y="115.20499999999998" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">260.1</text>
+<rect x="205.83333333333334" y="128.53283333333331" width="30" height="326.4671666666667" fill="#16a34a"/>
+<text x="220.83333333333334" y="122.53283333333331" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">254.4</text>
+<rect x="240.83333333333334" y="168.61133333333333" width="30" height="286.38866666666667" fill="#ea580c"/>
+<text x="255.83333333333334" y="162.61133333333333" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">223.2</text>
+<rect x="275.83333333333337" y="205.73816666666667" width="30" height="249.26183333333333" fill="#9333ea"/>
+<text x="290.83333333333337" y="199.73816666666667" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">194.2</text>
+<text x="515.0" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#1f2937">Repetitive</text>
+<rect x="447.5" y="394.17" width="30" height="60.83" fill="#2563eb"/>
+<text x="462.5" y="388.17" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">47.4</text>
+<rect x="482.5" y="397.3655" width="30" height="57.6345" fill="#16a34a"/>
+<text x="497.5" y="391.3655" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">44.9</text>
+<rect x="517.5" y="399.3675" width="30" height="55.63250000000001" fill="#ea580c"/>
+<text x="532.5" y="393.3675" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">43.4</text>
+<rect x="552.5" y="403.57683333333335" width="30" height="51.42316666666667" fill="#9333ea"/>
+<text x="567.5" y="397.57683333333335" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">40.1</text>
+<text x="791.6666666666667" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#1f2937">Mixed</text>
+<rect x="724.1666666666667" y="209.31866666666667" width="30" height="245.68133333333333" fill="#2563eb"/>
+<text x="739.1666666666667" y="203.31866666666667" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">191.4</text>
+<rect x="759.1666666666667" y="207.08566666666667" width="30" height="247.91433333333333" fill="#16a34a"/>
+<text x="774.1666666666667" y="201.08566666666667" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">193.2</text>
+<rect x="794.1666666666667" y="217.98116666666667" width="30" height="237.01883333333333" fill="#ea580c"/>
+<text x="809.1666666666667" y="211.98116666666667" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">184.7</text>
+<rect x="829.1666666666667" y="235.85800000000003" width="30" height="219.14199999999997" fill="#9333ea"/>
+<text x="844.1666666666667" y="229.85800000000003" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#1f2937">170.8</text>
+<rect x="220" y="48" width="15" height="15" fill="#2563eb"/>
+<text x="241" y="61" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">FIFO</text>
+<rect x="380" y="48" width="15" height="15" fill="#16a34a"/>
+<text x="401" y="61" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">LRU</text>
+<rect x="540" y="48" width="15" height="15" fill="#ea580c"/>
+<text x="561" y="61" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">LFU</text>
+<rect x="700" y="48" width="15" height="15" fill="#9333ea"/>
+<text x="721" y="61" text-anchor="start" font-family="Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2937">CUSTOM</text>
+<text x="28" y="280.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#1f2937" transform="rotate(-90 28 280.0)">Response time (ms)</text>
+</svg>

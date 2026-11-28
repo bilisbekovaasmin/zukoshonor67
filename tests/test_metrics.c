@@ -17,14 +17,14 @@ int main(void)
     metrics_init(&metrics);
 
     /* Simulate four requests */
-    if (!metrics_record(&metrics, "student-01",
-                        false, 32768, 125) ||
-        !metrics_record(&metrics, "student-02",
-                        false, 43008, 90) ||
-        !metrics_record(&metrics, "student-01",
-                        true, 32768, 5) ||
-        !metrics_record(&metrics, "student-02",
-                        true, 14336, 5)) {
+    if (!metrics_record_full(&metrics, "student-01",
+                             false, 32768, 125, 0, false, 32.0) ||
+        !metrics_record_full(&metrics, "student-02",
+                             false, 43008, 90, 0, false, 74.0) ||
+        !metrics_record_full(&metrics, "student-01",
+                             true, 32768, 5, 0, false, 74.0) ||
+        !metrics_record_full(&metrics, "student-02",
+                             true, 14336, 5, 0, false, 88.0)) {
 
         printf("Error recording requests.\n");
         metrics_destroy(&metrics);
@@ -55,6 +55,12 @@ int main(void)
                 &metrics.overall
             ),
             56.25
+        ) &&
+        metrics.overall.total_evictions == 0 &&
+        metrics.overall.oversized_requests == 0 &&
+        almost_equal(
+            metrics_average_utilization_percent(&metrics.overall),
+            67.0
         );
 
     /* Check individual client statistics */
@@ -91,6 +97,23 @@ int main(void)
         printf("\nCSV export failed.\n");
 
     passed = passed && exported;
+
+    /* Check the cache-specific fields with an oversized request. */
+    SimulationMetrics extended;
+    metrics_init(&extended);
+    bool extended_ok = metrics_record_full(
+        &extended, "student-large", false,
+        60000000, 1800, 3, true, 92.0
+    );
+    extended_ok = extended_ok &&
+        extended.overall.total_evictions == 3 &&
+        extended.overall.oversized_requests == 1 &&
+        almost_equal(
+            metrics_average_utilization_percent(&extended.overall),
+            92.0
+        );
+    passed = passed && extended_ok;
+    metrics_destroy(&extended);
 
     if (passed)
         printf("\nTEST PASSED!\n");

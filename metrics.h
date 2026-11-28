@@ -17,6 +17,9 @@ typedef struct {
     uint64_t origin_bytes;
 
     double total_response_time_ms;
+    size_t total_evictions;
+    size_t oversized_requests;
+    double utilization_percent_sum;
 } Metrics;
 
 /* Statistics for an individual client */
@@ -47,6 +50,18 @@ bool metrics_record(
     double response_time_ms
 );
 
+/* Record a request plus cache-specific measurements. */
+bool metrics_record_full(
+    SimulationMetrics *metrics,
+    const char *client_id,
+    bool hit,
+    size_t size_bytes,
+    double response_time_ms,
+    size_t evictions,
+    bool oversized,
+    double utilization_percent
+);
+
 /* Performance calculations */
 double metrics_hit_ratio(const Metrics *metrics);
 
@@ -55,6 +70,8 @@ double metrics_byte_hit_ratio(const Metrics *metrics);
 double metrics_average_response_time(
     const Metrics *metrics
 );
+
+double metrics_average_utilization_percent(const Metrics *metrics);
 
 /* Display results */
 void metrics_print(const SimulationMetrics *metrics);

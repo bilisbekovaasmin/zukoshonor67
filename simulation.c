@@ -2,6 +2,7 @@
 #include "simulation.h"
 #include "lfu_policy.h"
 #include "custom_policy.h"
+#include "policies.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,6 +90,38 @@ static size_t tracked_lfu_choose_victim(
             resource_id_from_key(entries[victim].key);
     }
 
+    return victim;
+}
+
+/* Select an FIFO victim and record it for the detailed trace. */
+static size_t tracked_fifo_choose_victim(
+    const PolicyEntry entries[],
+    size_t count)
+{
+    size_t victim = fifo_choose_victim(entries, count);
+
+    if (victim < count &&
+        evicted_ids != NULL &&
+        evicted_count < (size_t)trace_resource_count) {
+        evicted_ids[evicted_count++] =
+            resource_id_from_key(entries[victim].key);
+    }
+    return victim;
+}
+
+/* Select an LRU victim and record it for the detailed trace. */
+static size_t tracked_lru_choose_victim(
+    const PolicyEntry entries[],
+    size_t count)
+{
+    size_t victim = lru_choose_victim(entries, count);
+
+    if (victim < count &&
+        evicted_ids != NULL &&
+        evicted_count < (size_t)trace_resource_count) {
+        evicted_ids[evicted_count++] =
+            resource_id_from_key(entries[victim].key);
+    }
     return victim;
 }
 
@@ -207,12 +240,18 @@ bool run_simulation(
 
     /* Select replacement policy */
     switch (policy) {
+        case SIM_FIFO:
+            select_victim = tracked_fifo_choose_victim;
+            break;
+        case SIM_LRU:
+            select_victim = tracked_lru_choose_victim;
+            break;
         case SIM_LFU:
-    select_victim = tracked_lfu_choose_victim;
-    break;
+            select_victim = tracked_lfu_choose_victim;
+            break;
         case SIM_CUSTOM:
-    select_victim = tracked_custom_choose_victim;
-    break;
+            select_victim = tracked_custom_choose_victim;
+            break;
         default:
             fprintf(stderr, "Policy not connected yet.\n");
             return false;
@@ -250,6 +289,7 @@ bool run_simulation(
 
     /* Initialize performance metrics */
     metrics_init(&metrics);
+    custom_current_tick = 0;
 
     bool success = true;
     
@@ -329,6 +369,10 @@ size_t cumulative_hits = 0;
             break;
         }
 
+        /* Use the request's position in the trace as the policy time value. */
+        const uint64_t request_tick = (uint64_t)i + 1;
+        custom_current_tick = request_tick;
+
         /* Check whether resource is cached */
         PolicyEntry *entry = cache_lookup(
             &cache,
@@ -336,6 +380,8 @@ size_t cumulative_hits = 0;
         );
 
         bool hit = (entry != NULL);
+        if (hit)
+            entry->last_access_tick = request_tick;
 
         unsigned response_ms;
         size_t evictions = 0;
@@ -352,17 +398,14 @@ if (hit) {
         custom_record_hit(
             entry,
             request->client_id,
-            cache.clock
+                request_tick
         );
 
         entry->frequency = frequency;
     }
 } else {
             response_ms = resource->origin_latency_ms;
-/* Synchronize the custom policy clock */
-if (policy == SIM_CUSTOM) {
-    custom_current_tick = cache.clock + 1;
-}
+
             int inserted = cache_insert(
                 &cache,
                 keys[index],
@@ -385,18 +428,27 @@ if (policy == SIM_CUSTOM && inserted == 1) {
         resource->size_bytes,
         resource->origin_latency_ms,
         request->client_id,
-        cache.clock
+        request_tick
     );
+} else if (inserted == 1) {
+    cache.entries[cache.count - 1].last_access_tick = request_tick;
+    cache.entries[cache.count - 1].insertion_tick = request_tick;
 }
         }
 
         /* Record performance statistics */
-        if (!metrics_record(
+        if (!metrics_record_full(
                 &metrics,
                 request->client_id,
                 hit,
                 resource->size_bytes,
-                response_ms)) {
+                response_ms,
+                evictions,
+                resource->size_bytes > capacity_bytes,
+                capacity_bytes == 0
+                    ? 0.0
+                    : 100.0 * (double)cache.used_bytes /
+                          (double)capacity_bytes)) {
 
             success = false;
             break;
