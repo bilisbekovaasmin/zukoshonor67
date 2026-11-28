@@ -1,2 +1,2 @@
 # WebCacheSimulator
-A C capstone project implementing FiFO, LRU, LFU and a custom cache replacement policy
+A C capstone project implementing FIFO, LRU, LFU and a custom cache replacement policy

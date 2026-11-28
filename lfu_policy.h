@@ -13,12 +13,12 @@ void lfu_init_entry(PolicyEntry *entry,
                     unsigned origin_latency_ms,
                     uint64_t tick
                 );
-/*Examines every cached entry and returns the array index of the resource 
+/*Examines every cached entry and returns the array index of the resource
 that should be evicted.
 
 Selection rules:
 1. Choose the lowest frequency
-2. If frequencies are equal, choose the one with the longest time since last access 
+2. If frequencies are equal, choose the one with the longest time since last access
 Returns SIZE_MAX if the array is empty
 */
 void lfu_record_hit(PolicyEntry *entry, uint64_t tick);

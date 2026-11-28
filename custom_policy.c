@@ -1,4 +1,4 @@
-/*Custom policy implementation 
+/*Custom policy implementation
 Implements the custom balanced fetch value cache replacement policy
 */
 
@@ -7,7 +7,7 @@ Implements the custom balanced fetch value cache replacement policy
 #include <stdint.h> //Provides fixed-size types such as uint64_t
 
 /*
-Converts a client ID string into a repeatable number 
+Converts a client ID string into a repeatable number
 
 "student1 will always produce the same hash value
 This is the FNV-1a hash algorithm*/
@@ -24,7 +24,7 @@ static uint64_t hash_client_id(const char *client_id) {
 }
 
 /*Records approximately which clients used a resource*/
-static void update_client_sketch(PolicyEntry *entry, 
+static void update_client_sketch(PolicyEntry *entry,
     const char *client_id) {
     uint64_t hash = hash_client_id(client_id);
     entry->client_sketch |= UINT64_C(1) << (hash & 63U);   // Update the client sketch using bitwise OR
@@ -65,7 +65,7 @@ void custom_record_hit(
     entry->last_access_tick = tick;
     /*Record the client responsible for this hit*/
     update_client_sketch(entry, client_id);
-}   
+}
 
 /*Counts how many client bits are switched on
 Each switched-on bit represents a unique client that has accessed the resource*/
@@ -137,9 +137,9 @@ double custom_calculate_score(
     /*Reward recent accesses*/
     recency_factor = 1.0 / (1.0 + (double)age/8.0);
     /*Calculate the final score*/
-    return latency_per_kib * 
-            frequency_factor * 
-            fairness_factor * 
+    return latency_per_kib *
+            frequency_factor *
+            fairness_factor *
             recency_factor;
 }
 /*Selects the resource with the lowest retention score
@@ -154,11 +154,11 @@ size_t custom_choose_victim(
     }
 
     size_t victim = 0;
-    double victim_score = 
+    double victim_score =
         custom_calculate_score(&entries[0], current_tick);
 
     for (size_t i = 1; i < count; i++) {
-        double score = 
+        double score =
             custom_calculate_score(&entries[i], current_tick); //Compare every remaining entry with the current victim
             //Primary custom policy rule: the entry with the lowest value is evicted
         if (score < victim_score) {
@@ -170,17 +170,17 @@ size_t custom_choose_victim(
            */
           else if (
                 score == victim_score &&
-                entries[i].last_access_tick < 
+                entries[i].last_access_tick <
                     entries[victim].last_access_tick) {
             victim = i; // Update victim index based on LRU tiebreaker
             victim_score = score; // Update the lowest score
     }
-    //Final deterministic tie-break: If score and last access are equal, choose the resource inserted earlier 
+    //Final deterministic tie-break: If score and last access are equal, choose the resource inserted earlier
     else if(
         score == victim_score &&
-        entries[i].last_access_tick == 
+        entries[i].last_access_tick ==
             entries[victim].last_access_tick &&
-        entries[i].insertion_tick < 
+        entries[i].insertion_tick <
             entries[victim].insertion_tick
     ) {
         victim = i; // Update victim index based on insertion tick as a final tiebreaker

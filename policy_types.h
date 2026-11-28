@@ -17,12 +17,12 @@ typedef struct {
      * LFU uses this value for the required LRU tie-break.
      */
     uint64_t last_access_tick; //The request number of the most recent access
-    /*Request number when the resource entered the cache 
-    * This provides a final predictable tie-break if necessary 
+    /*Request number when the resource entered the cache
+    * This provides a final predictable tie-break if necessary
     */
     uint64_t insertion_tick; //The request number when the resource entered the cache
     /*Compact approximation of which clients requested this resource
-    *The custom policy uses it to reward resources shared by clients 
+    *The custom policy uses it to reward resources shared by clients
     */
    uint64_t client_sketch; //A compact approximation of which clients requested this resource
 } PolicyEntry; //Creates the PolicyEntry type, which is a structure containing information about one cached resource
