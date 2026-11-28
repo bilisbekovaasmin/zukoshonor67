@@ -45,7 +45,20 @@ int main(void)
         "lfu_trace.csv",
         "lfu_metrics.csv"
     );
+printf("\n--- CUSTOM SIMULATION ---\n\n");
 
+bool custom_success = run_simulation(
+    resources,
+    resource_count,
+    requests,
+    request_count,
+    100 * 1024,
+    SIM_CUSTOM,
+    "custom_trace.csv",
+    "custom_metrics.csv"
+);
+
+success = success && custom_success;
     /* Release loaded data */
     free(resources);
     free(requests);
