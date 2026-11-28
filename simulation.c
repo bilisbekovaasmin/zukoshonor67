@@ -39,6 +39,44 @@ static void resource_label(int id, char *label, size_t size)
     }
 }
 
+/* Information needed for detailed eviction tracking */
+static const ResourceInfo *trace_resources = NULL;
+static char (*trace_keys)[KEY_LENGTH] = NULL;
+static int trace_resource_count = 0;
+
+static int *evicted_ids = NULL;
+static size_t evicted_count = 0;
+
+/* Find the numeric resource ID using its cache key */
+static int resource_id_from_key(const char *key)
+{
+    for (int i = 0; i < trace_resource_count; i++) {
+        if (strcmp(trace_keys[i], key) == 0) {
+            return trace_resources[i].id;
+        }
+    }
+
+    return -1;
+}
+
+/* Select an LFU victim and record its resource ID */
+static size_t tracked_lfu_choose_victim(
+    const PolicyEntry entries[],
+    size_t count)
+{
+    size_t victim = lfu_choose_victim(entries, count);
+
+    if (victim < count &&
+        evicted_ids != NULL &&
+        evicted_count < (size_t)trace_resource_count) {
+
+        evicted_ids[evicted_count++] =
+            resource_id_from_key(entries[victim].key);
+    }
+
+    return victim;
+}
+
 bool run_simulation(
     const ResourceInfo *resources,
     int resource_count,
