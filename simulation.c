@@ -374,6 +374,17 @@ if (hit) {
                 success = false;
                 break;
             }
+    /* Initialize custom policy metadata for new entries */
+if (policy == SIM_CUSTOM && inserted == 1) {
+    custom_init_entry(
+        &cache.entries[cache.count - 1],
+        keys[index],
+        resource->size_bytes,
+        resource->origin_latency_ms,
+        request->client_id,
+        cache.clock
+    );
+}
         }
 
         /* Record performance statistics */
