@@ -1,6 +1,7 @@
 
 #include "simulation.h"
 #include "lfu_policy.h"
+#include "custom_policy.h"
 
 #include <stdio.h>
 #include <stdlib.h>
