@@ -9,6 +9,36 @@
 #define CACHE_HIT_LATENCY_MS 5
 #define KEY_LENGTH 1300
 
+/* Convert resource IDs to reference trace labels */
+static void resource_label(int id, char *label, size_t size)
+{
+    switch (id) {
+        case 1:
+            snprintf(label, size, "A");
+            break;
+
+        case 6:
+            snprintf(label, size, "B");
+            break;
+
+        case 7:
+            snprintf(label, size, "C");
+            break;
+
+        case 12:
+            snprintf(label, size, "D");
+            break;
+
+        case 18:
+            snprintf(label, size, "E");
+            break;
+
+        default:
+            snprintf(label, size, "%d", id);
+            break;
+    }
+}
+
 bool run_simulation(
     const ResourceInfo *resources,
     int resource_count,
