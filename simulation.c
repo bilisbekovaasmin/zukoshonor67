@@ -105,8 +105,8 @@ bool run_simulation(
     /* Select replacement policy */
     switch (policy) {
         case SIM_LFU:
-            select_victim = lfu_choose_victim;
-            break;
+    select_victim = tracked_lfu_choose_victim;
+    break;
 
         default:
             fprintf(stderr, "Policy not connected yet.\n");
@@ -147,6 +147,31 @@ bool run_simulation(
     metrics_init(&metrics);
 
     bool success = true;
+    
+/* Initialize eviction tracking */
+trace_resources = resources;
+trace_keys = keys;
+trace_resource_count = resource_count;
+
+evicted_ids = calloc(
+    (size_t)resource_count,
+    sizeof *evicted_ids
+);
+
+if (evicted_ids == NULL) {
+    metrics_destroy(&metrics);
+    cache_destroy(&cache);
+    free(keys);
+
+    trace_resources = NULL;
+    trace_keys = NULL;
+    trace_resource_count = 0;
+
+    return false;
+}
+
+evicted_count = 0;
+
 
     /* Process requests in chronological input order */
     for (int i = 0; i < request_count; i++) {
@@ -185,6 +210,7 @@ bool run_simulation(
 
         unsigned response_ms;
         size_t evictions = 0;
+        evicted_count = 0;
 
         if (hit) {
             response_ms = CACHE_HIT_LATENCY_MS;
@@ -241,10 +267,20 @@ bool run_simulation(
         );
     }
 
-    /* Release allocated memory */
-    metrics_destroy(&metrics);
-    cache_destroy(&cache);
-    free(keys);
+   
+/* Release allocated memory */
+free(evicted_ids);
 
-    return success;
+evicted_ids = NULL;
+evicted_count = 0;
+trace_resources = NULL;
+trace_keys = NULL;
+trace_resource_count = 0;
+
+metrics_destroy(&metrics);
+cache_destroy(&cache);
+free(keys);
+
+return success;
+    
 }
