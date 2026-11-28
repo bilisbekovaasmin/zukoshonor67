@@ -18,7 +18,7 @@ void lfu_init_entry(PolicyEntry *entry,
                     entry->last_access_tick = tick;
                     /*Remember when the resource entered the cache*/
                     entry->insertion_tick = tick;
-                    /*LFU does not use client_sketch, but we initialize it so 
+                    /*LFU does not use client_sketch, but we initialize it so
                     the structure never contains an unknown value */
                     entry->client_sketch = 0;
 
@@ -48,7 +48,7 @@ size_t lfu_choose_victim(const PolicyEntry entries[], size_t count) {
              entries[i].last_access_tick < entries[victim].last_access_tick)) {
             victim = i; // Update victim index based on LFU criteria
         }
-        /*If frequencies are equal, choose the entry whose most recent access happened earlier 
+        /*If frequencies are equal, choose the entry whose most recent access happened earlier
         */
        else if (entries[i].frequency == entries[victim].frequency &&
                 entries[i].last_access_tick == entries[victim].last_access_tick) {

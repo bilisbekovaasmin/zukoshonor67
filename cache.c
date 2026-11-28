@@ -1,5 +1,5 @@
 #include "cache.h"
-
+#include "cache_policies.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -41,17 +41,34 @@ const PolicyEntry *cache_find(const Cache *cache, const char *key) {
 }
 
 /* Search for a requested resource and update its usage information on a hit. */
-PolicyEntry *cache_lookup(Cache *cache, const char *key) {
-    size_t i;
-    if (cache == NULL || key == NULL) return NULL;
+PolicyEntry *cache_lookup(
+    Cache *cache,
+    const char *key,
+    const char *client_id,
+    const CachePolicy *policy)
+    {
+        size_t i;
+        if (cache == NULL || key == NULL) {
+            return NULL;
+    }
 
     for (i = 0; i < cache->count; ++i) {
         PolicyEntry *entry = &cache->entries[i];
+
         if (entry->key != NULL && strcmp(entry->key, key) == 0) {
             /* These values help LFU count uses and LRU compare recent uses. */
             ++cache->clock;
-            if (entry->frequency < UINT64_MAX) ++entry->frequency;
-            entry->last_access_tick = cache->clock;
+
+            if (policy != NULL && policy->record_hit != NULL) {
+                policy->record_hit(entry, client_id, cache->clock);
+            } else
+             {
+                /* Default behavior if no custom policy is provided. */
+                if (entry->frequency < UINT64_MAX) {
+                    ++entry->frequency;
+                }
+                entry->last_access_tick = cache->clock;
+            }
             return entry;
         }
     }
@@ -88,44 +105,88 @@ static int reserve_one(Cache *cache) {
 }
 
 /* Add a missed resource. If space is short, ask the selected policy what to remove. */
-int cache_insert(Cache *cache, const char *key, size_t size_bytes,
-                 unsigned origin_latency_ms, CacheVictimSelector select_victim,
-                 size_t *evictions) {
-    size_t removed = 0;
-    PolicyEntry *entry;
+int cache_insert(Cache *cache,
+                const char *key,
+                size_t size_bytes,
+                unsigned origin_latency_ms,
+                const char *client_id,
+                const CachePolicy *policy,
+                size_t *evictions)
+    {
+        size_t removed = 0;
+        uint64_t request_tick;
+        PolicyEntry *entry;
 
-    if (evictions != NULL) *evictions = 0;
-    if (cache == NULL || key == NULL) return 0;
+    if (evictions != NULL) {
+        *evictions = 0;
+    }
+    if (cache == NULL || key == NULL) {
+        return 0;
+    }
     /* Oversized resources are served from the origin but are not stored. */
-    if (size_bytes > cache->capacity_bytes) return 0;
+    if (size_bytes > cache->capacity_bytes) {
+        return 0;
+    }
     /* Keep one copy of each resource. */
-    if (cache_find(cache, key) != NULL) return 1;
-    if (!reserve_one(cache)) return -1;
+    if (cache_find(cache, key) != NULL)
+    { return 1;
+    }
+    if (!reserve_one(cache)) {
+        return -1;
+    }
+
+    /*The miss that caused insertion is the next request tick. BFV uses thus while calculating resource ages*/
+    request_tick = cache->clock + 1;
 
     /* A large resource may require removing more than one cached resource. */
     while (cache->capacity_bytes - cache->used_bytes < size_bytes) {
         size_t victim;
-        if (select_victim == NULL || cache->count == 0) return -1;
+        if ( policy == NULL || policy->choose_victim == NULL || cache->count == 0) {
+            return -1;
+        }
+        victim = policy->choose_victim(
+            cache->entries,
+            cache->count,
+            request_tick);
         /* FIFO, LRU, or LFU chooses the resource; the cache removes it. */
-        victim = select_victim(cache->entries, cache->count);
-        if (victim >= cache->count || !cache_remove_at(cache, victim)) return -1;
+        if (
+            victim >= cache->count ||
+            !cache_remove_at(cache, victim))
+            { return -1;
+            }
         ++removed;
     }
-
-    /* Store the resource and set its first-use information for the policies. */
-    ++cache->clock;
+    /*The insertion request becomes the current tick*/
+    cache->clock = request_tick;
+    /*Point to the new entry*/
     entry = &cache->entries[cache->count];
-    entry->key = key;
-    entry->size_bytes = size_bytes;
-    entry->origin_latency_ms = origin_latency_ms;
-    entry->frequency = 1; /* The request that inserts it counts as first use. */
-    entry->last_access_tick = cache->clock;
-    entry->insertion_tick = cache->clock;
-    /* The custom policy can fill this in later if it tracks client sharing. */
-    entry->client_sketch = 0;
-
+    /*A custom policy can initialize all metadata itself*/
+    if (policy != NULL && policy->init_entry != NULL) {
+        policy->init_entry(
+            entry,
+            key,
+            size_bytes,
+            origin_latency_ms,
+            client_id,
+            cache->clock);
+        } else {
+        /*Default behavior if no custom policy is provided*/
+        entry->key = key;
+        entry->size_bytes = size_bytes;
+        entry->origin_latency_ms = origin_latency_ms;
+        entry->frequency = 1; /* The request that inserts it counts as first use.
+        */
+        entry->last_access_tick = cache->clock;
+        entry->insertion_tick = cache->clock;
+        entry->client_sketch = 0; /* The custom policy can fill this in later if it tracks client sharing. */
+    }
+    /* Store the resource and set its first-use information for the policies. */
     ++cache->count;
     cache->used_bytes += size_bytes;
-    if (evictions != NULL) *evictions = removed;
+
+    if (evictions != NULL) {
+        *evictions = removed;
+    }
     return 1;
 }
+
