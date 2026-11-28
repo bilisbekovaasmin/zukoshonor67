@@ -9,7 +9,21 @@
 
 #define CACHE_HIT_LATENCY_MS 5
 #define KEY_LENGTH 1300
+/* Current request tick for the custom policy */
+static uint64_t custom_current_tick = 0;
 
+/* Adapter for the custom eviction policy */
+static size_t custom_victim_adapter(
+    const PolicyEntry entries[],
+    size_t count
+)
+{
+    return custom_choose_victim(
+        entries,
+        count,
+        custom_current_tick
+    );
+}
 /* Convert resource IDs to reference trace labels */
 static void resource_label(int id, char *label, size_t size)
 {
@@ -180,7 +194,9 @@ bool run_simulation(
         case SIM_LFU:
     select_victim = tracked_lfu_choose_victim;
     break;
-
+        case SIM_CUSTOM:
+    select_victim = custom_victim_adapter;
+    break;
         default:
             fprintf(stderr, "Policy not connected yet.\n");
             return false;
