@@ -341,9 +341,23 @@ size_t cumulative_hits = 0;
         size_t evictions = 0;
         evicted_count = 0;
 
-        if (hit) {
-            response_ms = CACHE_HIT_LATENCY_MS;
-        } else {
+if (hit) {
+    response_ms = CACHE_HIT_LATENCY_MS;
+
+    if (policy == SIM_CUSTOM) {
+        /* Preserve frequency because cache_lookup
+           has already counted this hit. */
+        uint64_t frequency = entry->frequency;
+
+        custom_record_hit(
+            entry,
+            request->client_id,
+            cache.clock
+        );
+
+        entry->frequency = frequency;
+    }
+} else {
             response_ms = resource->origin_latency_ms;
 
             int inserted = cache_insert(
