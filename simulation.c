@@ -93,6 +93,22 @@ static size_t tracked_lfu_choose_victim(
 }
 
 /* Write one request result to the detailed CSV trace */
+static size_t tracked_custom_choose_victim(
+    const PolicyEntry entries[],
+    size_t count)
+{
+    size_t victim = custom_victim_adapter(entries, count);
+
+    if (victim < count &&
+        evicted_ids != NULL &&
+        evicted_count < (size_t)trace_resource_count) {
+
+        evicted_ids[evicted_count++] =
+            resource_id_from_key(entries[victim].key);
+    }
+
+    return victim;
+}
 static void write_trace_row(
     FILE *file,
     int step,
@@ -195,7 +211,7 @@ bool run_simulation(
     select_victim = tracked_lfu_choose_victim;
     break;
         case SIM_CUSTOM:
-    select_victim = custom_victim_adapter;
+    select_victim = tracked_custom_choose_victim;
     break;
         default:
             fprintf(stderr, "Policy not connected yet.\n");
