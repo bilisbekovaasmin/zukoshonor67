@@ -359,7 +359,10 @@ if (hit) {
     }
 } else {
             response_ms = resource->origin_latency_ms;
-
+/* Synchronize the custom policy clock */
+if (policy == SIM_CUSTOM) {
+    custom_current_tick = cache.clock + 1;
+}
             int inserted = cache_insert(
                 &cache,
                 keys[index],
